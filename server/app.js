@@ -2,6 +2,7 @@ import Express from 'express';
 
 import con from './config/connection.js';
 import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = Express();
 
@@ -11,6 +12,7 @@ app.use(Express.json());
 app.use(Express.urlencoded());
 
 app.use("/user", userRoutes);
+app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
     res.send("App Chal Gai GAND");

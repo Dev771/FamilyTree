@@ -4,7 +4,8 @@ const UserSchema = mongoose.Schema({
 
     id: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,
@@ -15,7 +16,10 @@ const UserSchema = mongoose.Schema({
     },
     dob: {
         type: Date,
-        default: Date.now()
+    },
+    password: {
+        type: String,
+        required: true
     },
     personal_Family_ID: {
         type: [String],

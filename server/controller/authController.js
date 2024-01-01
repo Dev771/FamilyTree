@@ -45,12 +45,7 @@ export const AddUser = async (req, res) => {
         
         const savedFamily = await AddFamily({user_Family_ID, spouse1: email, spouse2: null, decendant: [], marital_Status});
 
-        const saltR = bcrypt.genSaltSync(salt);
-        const sendingData = bcrypt.hashSync(JSON.stringify({ id: savedUser.id, password: savedUser.password }), saltR);
-
-        console.log(sendingData);
-
-        const token = jwt.sign(sendingData.toString(), process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        const token = generateToken(savedUser);
 
         return res.send(token);
 
@@ -58,6 +53,12 @@ export const AddUser = async (req, res) => {
         return res.json({ status: "error", msg: "Error While Saving User. Please Try Again!!!", error })
     } 
 
+}
+
+const generateToken = (user) => {
+    const token = jwt.sign({ id: user.id, password: user.password }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+
+    return token;
 }
 
 const passwordEncryption = async (password) => {
@@ -69,14 +70,14 @@ const passwordEncryption = async (password) => {
 }
 
 
-export const loginUser = async (req, res) => {
+export const LoginUser = async (req, res) => {
 
     const { email, password } = req.body;
 
     let validatedUser;
 
     try {
-        validatedUser = await UserSchema.findOne({id: email});
+        validatedUser = await UserSchema.findOne({ id: email });
     } catch(error) {
         res.json({ status: 400, msg: "Error While Fetching User Details!!!" });
     }
@@ -84,7 +85,15 @@ export const loginUser = async (req, res) => {
     if(!validatedUser) {
         res.json({ status: 401, msg: "User Not Found!!!" });
     } else {
-        res.json({ status: 200, msg: "User Found SuccessFully!!!" });
+        if(await bcrypt.compare(password, validatedUser.password)) {
+            const token = generateToken(validatedUser);
+
+            res.send(token);
+
+        } else {
+            res.json({ status: 401, msg: "User Not Found!!!" });
+        }
+
     }
 
 }

@@ -1,3 +1,7 @@
+header {
+    height: 12vh;
+}
+
 .navbar {
     display: flex;
     justify-content: space-evenly;
